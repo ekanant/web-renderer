@@ -1,0 +1,15 @@
+{
+  "name": "web-renderer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ekanant/web-renderer.git",
+  "author": "Ekanant Phanuwatyingyong <ekanant2535@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.5"
+  }
+}
