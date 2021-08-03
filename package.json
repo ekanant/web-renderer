@@ -7,9 +7,11 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "tsc": "tsc"
+    "dev": "node src/index.js",
+    "run": "node src/index.js"
   },
-  "devDependencies": {
-    "typescript": "^4.3.5"
+  "devDependencies": {},
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }
