@@ -26,7 +26,7 @@ const printPDF = async ({url = "", format="A4", waitUntil = "load", html = ""}) 
     } else {
         await page.goto(url, {waitUntil});
     }
-    
+    await page.evaluateHandle('document.fonts.ready');
     const pdf = await page.pdf({ format, displayHeaderFooter: false, printBackground: true });
    
     await browser.close();
