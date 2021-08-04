@@ -1,10 +1,12 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-const app = express()
 const port = 3000
 const CHROMIUM_BIN = process.env.CHROMIUM_BIN || ''
+const app = express()
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
-const printPDF = async ({url = "", format="A4", waitUntil = "load"}) => {    
+const printPDF = async ({url = "", format="A4", waitUntil = "load", html = ""}) => {    
     const browser = await puppeteer.launch({ 
         headless: true, 
         executablePath: CHROMIUM_BIN,
@@ -19,7 +21,12 @@ const printPDF = async ({url = "", format="A4", waitUntil = "load"}) => {
         ]
     });
     const page = await browser.newPage();
-    await page.goto(url, {waitUntil});
+    if(html) {
+        await page.setContent(html)
+    } else {
+        await page.goto(url, {waitUntil});
+    }
+    
     const pdf = await page.pdf({ format, displayHeaderFooter: false, printBackground: true });
    
     await browser.close();
@@ -48,11 +55,40 @@ app.get('/web-renderer/pdf', async (req, res) => {
             res.send(pdf)
         } catch (err) {
             console.error(`error url=${url}`, err)
-            res.send("Error");
+            res.status(500).send("Error");
         }
         
     } else {
-        res.send('Hello World!url='+url)
+        res.status(400).send('bad request')
+    }
+})
+
+app.post('/web-renderer/html-pdf', async (req, res) => {
+    const { format="A4", waitUntil = "load", fileName = "pdf", download = "0" } = req.query;
+    const html = req.body ? req.body["html"] : "";
+    if(html ) {
+        try {
+            const pdf = await printPDF({
+                html, format, waitUntil
+            })
+            let responseHeader = {}
+            responseHeader['Content-Type'] = "application/pdf"
+            responseHeader['Content-Length'] = pdf.length
+
+            if(download === "1") {
+                responseHeader["Content-disposition"] = `attachment; filename=${fileName}.pdf`
+            } else {
+                responseHeader["Content-disposition"] = `inline; filename=${fileName}.pdf`
+            }
+            
+            res.set(responseHeader)
+            res.send(pdf)
+        } catch (err) {
+            console.error(`error url=${url}`, err)
+            res.status(500).send("Error");
+        }
+    } else {
+        res.status(400).send('bad request')
     }
 })
 
