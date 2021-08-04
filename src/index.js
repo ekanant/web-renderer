@@ -2,9 +2,22 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const app = express()
 const port = 3000
+const CHROMIUM_BIN = process.env.CHROMIUM_BIN || ''
 
-const printPDF = async ({url = "", format="A4", waitUntil = "load"}) => {
-    const browser = await puppeteer.launch({ headless: true, args: ['--disable-dev-shm-usage']});   //--disable-dev-shm-usage for run on docker
+const printPDF = async ({url = "", format="A4", waitUntil = "load"}) => {    
+    const browser = await puppeteer.launch({ 
+        headless: true, 
+        executablePath: CHROMIUM_BIN,
+        args: [
+            // Required for Docker version of Puppeteer
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            // This will write shared memory files into /tmp instead of /dev/shm,
+            // because Docker’s default for /dev/shm is 64MB
+            '--disable-dev-shm-usage',
+            '--incognito',
+        ]
+    });
     const page = await browser.newPage();
     await page.goto(url, {waitUntil});
     const pdf = await page.pdf({ format, displayHeaderFooter: false, printBackground: true });
