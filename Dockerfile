@@ -27,14 +27,11 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 #Install chromium
-
+ENV CHROMIUM_BIN="/usr/bin/chromium-browser"
 RUN apk --no-cache update \ 
       && apk --no-cache  upgrade \
       && apk add --no-cache chromium=91.0.4472.164-r0 \
       && rm -rf /var/cache/apk/* /tmp/*
-
-
-ENV CHROMIUM_BIN="/usr/bin/chromium-browser"
 
 USER nodejs
 
