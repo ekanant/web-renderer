@@ -43,6 +43,12 @@ app.get('/web-renderer/pdf', async (req, res) => {
     }
 })
 
+app.get('/web-renderer/healthz', async (req, res) => {
+    res.json({
+        "status": "ok"
+    })
+});
+
 app.listen(port, () => {
     console.log(`Web renderer app listening at http://localhost:${port}`)
 })
