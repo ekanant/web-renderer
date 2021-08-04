@@ -14,14 +14,24 @@ const printPDF = async ({url = "", format="A4", waitUntil = "load"}) => {
   }
 
 app.get('/web-renderer/pdf', async (req, res) => {
-    const { url = "", format="A4", waitUntil = "load" } = req.query;
+    const { url = "", format="A4", waitUntil = "load", fileName = "pdf", download = "0" } = req.query;
 
     if(url) {
         try {
             const pdf = await printPDF({
                 url, format, waitUntil
             })
-            res.set({ 'Content-Type': 'application/pdf', 'Content-Length': pdf.length })
+            let responseHeader = {}
+            responseHeader['Content-Type'] = "application/pdf"
+            responseHeader['Content-Length'] = pdf.length
+
+            if(download === "1") {
+                responseHeader["Content-disposition"] = `attachment; filename=${fileName}.pdf`
+            } else {
+                responseHeader["Content-disposition"] = `inline; filename=${fileName}.pdf`
+            }
+            
+            res.set(responseHeader)
             res.send(pdf)
         } catch (err) {
             console.error(`error url=${url}`, err)
